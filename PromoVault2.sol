@@ -87,7 +87,7 @@ contract PromoVault2 is Ownable {
     mapping(bytes32 messageHash => bool processed) public isProcessed;   // record processed messages
 
 
-    event VaultTransfer(address indexed token, address indexed signer, address indexed from, address to, uint256 value);
+    event VaultTransfer(address indexed token, address indexed signer, address indexed from, address to, uint256 value, uint256 nonce);
     event CreateAirdrop(address signer, address token, uint256 amount);
     event CloseAirdrop(address signer, address receiver, uint256 amount);
     event Rescue(address _token, uint256 _amount);
@@ -179,7 +179,7 @@ var signature = web3.eth.accounts.sign(messageHash, PrivateKey);
         isProcessed[messageHash] = true;
         airdrops[signer].balance = a.balance - uint128(value);
         a.token.safeTransfer(to, value);
-        emit VaultTransfer(a.token, signer, from, to, value);
+        emit VaultTransfer(a.token, signer, from, to, value, nonce);
     }
 
     function splitSignature(bytes memory sig)
