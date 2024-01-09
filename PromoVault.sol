@@ -77,6 +77,17 @@ contract PromoVault is Ownable {
     event VaultTransfer(address indexed token, address indexed from, address to, uint256 value);
     event Rescue(address _token, uint256 _amount);
 
+    bool public isPaused;
+
+    modifier isNotPaused() {
+        require(!isPaused, "is paused");
+        _;
+    }
+
+    function setPause(bool pause) external onlyOwner {
+        isPaused = pause;
+    }
+
 /*
 // to sign message on the server-side use:
 
@@ -92,7 +103,7 @@ var signature = web3.eth.accounts.sign(messageHash, PrivateKey);
         address to, // transfer to address
         uint256 value, // amount of tokens to transfer
         bytes memory signature
-    ) external {
+    ) external isNotPaused {
         bytes32 messageHash = keccak256(
             abi.encodePacked(
                 token,
