@@ -78,8 +78,8 @@ contract PromoVault2 is Ownable {
 
     struct Airdrop {
         uint128 balance;    // available airdrop balance
-        uint64 vestingDate; // after this date when tokens can be claimed
-        uint64 deadline;    // until this date tokens can be claimed 
+        uint64 vestingDate; // after this date tokens can be claimed
+        uint64 deadline;    // until this date tokens can be claimed, 0 means "without deadline" 
         address token;      // airdrop token
     }
 
@@ -106,15 +106,16 @@ contract PromoVault2 is Ownable {
     function createAirdrop(
         address token,  // airdrop token
         uint256 amount, // amount of tokens for airdrop
-        address signer  // unique signer for this airdrop
+        address signer,  // unique signer for this airdrop
+        uint64 vestingDate, // after this date tokens can be claimed
+        uint64 deadline    // until this date tokens can be claimed, 0 means "without deadline" 
     ) external isNotPaused {
         require(signer != address(0) && airdrops[signer].token == address(0), "signer already was used");
-        airdrops[signer].token = token;
         uint256 balance = IERC20(token).balanceOf(address(this));
         token.safeTransferFrom(msg.sender, address(this), amount);
         amount = IERC20(token).balanceOf(address(this)) - balance;
         require(amount < 2**128, "too big amount");
-        airdrops[signer].balance = uint128(amount);
+        airdrops[signer] = Airdrop(uint128(amount), vestingDate, deadline, token);
         emit CreateAirdrop(signer, token, amount);
     }
 /*
